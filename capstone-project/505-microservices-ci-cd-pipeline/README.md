@@ -2183,7 +2183,7 @@ allowedTopologies:
     become: false
     shell: kubectl apply -f storage.yml
 ```
-
+***https://jamesdefabia.github.io/docs/user-guide/kubectl/kubectl_patch/
 - Commit the change, then push the ansible playbooks to the remote repo.
 
 ```bash
