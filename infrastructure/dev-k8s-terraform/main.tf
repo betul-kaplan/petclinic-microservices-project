@@ -21,10 +21,7 @@ variable "sec-gr-k8s-worker" {
 data "aws_vpc" "name" {
   default = true
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> feature/msp-16
 resource "aws_security_group" "petclinic-mutual-sg" {
   name = var.sec-gr-mutual
   vpc_id = data.aws_vpc.name.id
@@ -33,10 +30,7 @@ resource "aws_security_group" "petclinic-mutual-sg" {
 resource "aws_security_group" "petclinic-kube-worker-sg" {
   name = var.sec-gr-k8s-worker
   vpc_id = data.aws_vpc.name.id
-<<<<<<< HEAD
-=======
 
->>>>>>> feature/msp-16
   ingress {
     protocol = "tcp"
     from_port = 10250
@@ -79,10 +73,7 @@ resource "aws_security_group" "petclinic-kube-worker-sg" {
 resource "aws_security_group" "petclinic-kube-master-sg" {
   name = var.sec-gr-k8s-master
   vpc_id = data.aws_vpc.name.id
-<<<<<<< HEAD
-=======
 
->>>>>>> feature/msp-16
   ingress {
     protocol = "tcp"
     from_port = 22
