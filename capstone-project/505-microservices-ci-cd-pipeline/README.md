@@ -3027,7 +3027,7 @@ git commit -m 'added qa automation pipeline for dev'
 git push
 git checkout dev
 git merge feature/msp-18
-git push origin dev
+git push origin dev 
 ```
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
