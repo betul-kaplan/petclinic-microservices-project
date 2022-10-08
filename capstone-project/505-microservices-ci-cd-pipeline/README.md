@@ -45,8 +45,7 @@ This project aims to create full CI/CD Pipeline for microservice based applicati
 | QA Automation Setup for Development | Create a QA Automation Environment - Part-2 | MSP-16  | Create a QA Automation Environment with Kubernetes. | feature/msp-16 |
 | QA Automation Setup for Development | Prepare Petlinic Kubernetes YAML Files | MSP-17  | Prepare Petlinic Kubernetes YAML Files. | feature/msp-17 |
 | QA Automation Setup for Development | Prepare a QA Automation Pipeline | MSP-18  | Prepare a QA Automation Pipeline on `dev` branch for Nightly Builds. | feature/msp-18 |
-| QA Setup for Release | Create a Key Pair for QA Environment | MSP-19-1  | Create a permanent Key Pair for Ansible to be used in QA Environment on Release. | feature/msp-19 |
-| QA Setup for Release | Create a QA Infrastructure with Terrafrom and Ansible | MSP-19-2  | Create a Permanent QA Infrastructure for Kubernetes Cluster with Terraform and Ansible. | feature/msp-19 |
+| QA Setup for Release | Create a QA Infrastructure with eksctl | MSP-19  | Create a Permanent QA Infrastructure for Kubernetes Cluster with eksctl. | feature/msp-19 |
 | QA Setup for Release | Prepare Build Scripts for QA Environment | MSP-20  | Prepare Build Scripts for QA Environment | feature/msp-20 |
 | QA Setup for Release | Build and Deploy App on QA Environment Manually | MSP-21  | Build and Deploy App for QA Environment Manually using Jenkins Jobs. | feature/msp-21 | 
 | QA Setup for Release | Prepare a QA Pipeline | MSP-22  | Prepare a QA Pipeline using Jenkins on `release` branch for Weekly Builds. | feature/msp-22 |
@@ -2459,7 +2458,7 @@ DNS_NAME: "DNS Name of your application"
 
 ```bash
 aws s3api create-bucket --bucket petclinic-helm-charts-<put-your-name> --region us-east-1
-aws s3api put-object --bucket petclinic-helm-charts-omerdogan --key stable/myapp/
+aws s3api put-object --bucket petclinic-helm-charts-<put-your-name> --key stable/myapp/
 ```
 
 * Install the helm-s3 plugin for Amazon S3.
@@ -2480,7 +2479,7 @@ helm plugin install https://github.com/hypnoglow/helm-s3.git
 * ``Initialize`` the Amazon S3 Helm repository.
 
 ```bash
-AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-omerdogan/stable/myapp 
+AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-<put-your-name>/stable/myapp 
 ```
 
 * The command creates an ``index.yaml`` file in the target to track all the chart information that is stored at that location.
@@ -2488,14 +2487,14 @@ AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-omerdogan/stable/my
 * Verify that the ``index.yaml`` file was created.
 
 ```bash
-aws s3 ls s3://petclinic-helm-charts-omerdogan/stable/myapp/
+aws s3 ls s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
 ```
 
 * Add the Amazon S3 repository to Helm on the client machine. 
 
 ```bash
 helm repo ls
-AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-omerdogan/stable/myapp/
+AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
 ```
 
 * Update `version` and `appVersion` field of `k8s/petclinic_chart/Chart.yaml` file as below for testing.
@@ -2515,7 +2514,7 @@ helm package petclinic_chart/
 * Store the local package in the Amazon S3 Helm repository.
 
 ```bash
-HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.1.0.tgz stable-petclinicapp
+HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.1.tgz stable-petclinicapp
 ```
 
 * Search for the Helm chart.
@@ -2540,7 +2539,7 @@ helm package petclinic_chart/
 * Push the new version to the Helm repository in Amazon S3.
 
 ```bash
-HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.2.0.tgz stable-petclinicapp
+HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.2.tgz stable-petclinicapp
 ```
 
 * Verify the updated Helm chart.
@@ -2682,7 +2681,7 @@ git push --set-upstream origin feature/msp-18
 ```
 ```bash
 PATH="$PATH:/usr/local/bin"
-APP_REPO_NAME="omerdogan16/petclinic-microservices" # Write your own repo name
+APP_REPO_NAME="clarusway-repo/petclinic-app-dev" # Write your own repo name
 AWS_REGION="us-east-1" #Update this line if you work on another region
 ECR_REGISTRY="046402772087.dkr.ecr.us-east-1.amazonaws.com" # Replace this line with your ECR name
 aws ecr create-repository \
@@ -3083,12 +3082,6 @@ sudo mv /tmp/eksctl /usr/local/bin
 eksctl version
 ```
 
-- Switch user to jenkins for creating eks cluster. Execute following commands as `jenkins` user.
-
-```bash
-sudo su - jenkins
-```
-
 ### Install kubectl
 
 - Download the Amazon EKS vended kubectl binary.
@@ -3103,16 +3096,10 @@ curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.7/2022-06-29/
 chmod +x ./kubectl
 ```
 
-- Copy the binary to a folder in your PATH. If you have already installed a version of kubectl, then we recommend creating a $HOME/bin/kubectl and ensuring that $HOME/bin comes first in your $PATH.
+- Move the kubectl binary to /usr/local/bin.
 
 ```bash
-mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
-```
-
-- (Optional) Add the $HOME/bin path to your shell initialization file so that it is configured when you open a shell.
-
-```bash
-echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+sudo mv kubectl /usr/local/bin
 ```
 
 - After you install kubectl , you can verify its version with the following command:
@@ -3121,7 +3108,13 @@ echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
 kubectl version --short --client
 ```
 
-- Create a `cluster.yaml` file under `/varlib/jenkins` folder.
+- Switch user to jenkins for creating eks cluster. Execute following commands as `jenkins` user.
+
+```bash
+sudo su - jenkins
+```
+
+- Create a `cluster.yaml` file under `/var/lib/jenkins` folder.
 
 ```yaml
 apiVersion: eksctl.io/v1alpha5
@@ -3129,13 +3122,15 @@ kind: ClusterConfig
 
 metadata:
   name: petclinic-cluster
-  region: eu-north-1
-nodeGroups:
-  - name: ng-1
-    instanceType: t3.medium
-    desiredCapacity: 2
-    volumeSize: 8
+  region: us-east-1
 availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3a.medium
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 3
+    volumeSize: 8
 ```
 
 - Create an EKS cluster via `eksctl`. It will take a while.
@@ -3158,6 +3153,7 @@ git push origin dev
 - After the cluster is up, run the following command to install `ingress controller`.
 
 ```bash
+export PATH=$PATH:$HOME/bin
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
 ```
 
@@ -3190,7 +3186,7 @@ AWS_REGION="us-east-1"
 aws ecr describe-repositories --region ${AWS_REGION} --repository-name ${APP_REPO_NAME} || \
 aws ecr create-repository \
  --repository-name ${APP_REPO_NAME} \
- --image-scanning-configuration scanOnPush=true \
+ --image-scanning-configuration scanOnPush=false \
  --image-tag-mutability MUTABLE \
  --region ${AWS_REGION}
 ```
@@ -3298,7 +3294,7 @@ git checkout feature/msp-21
 - Create a ``Jenkins Job`` with name of `build-and-deploy-petclinic-on-qa-env` to build and deploy the app on `QA environment` manually on `release` branch using following script, and save the script as `build-and-deploy-petclinic-on-qa-env-manually.sh` under `jenkins` folder.
 
 ```yml
-- job name:   
+- job name: build-and-deploy-petclinic-on-qa-env  
 - job type: Freestyle project
 - Source Code Management: Git
       Repository URL: https://github.com/[your-github-account]/petclinic-microservices.git
@@ -3471,3 +3467,9 @@ git push origin release
 ```
 * Click `save`.
 * Click `Build Now`
+
+- Delete  EKS cluster via `eksctl`. It will take a while.
+
+```bash
+eksctl delete cluster -f cluster.yaml
+```
