@@ -2459,7 +2459,7 @@ DNS_NAME: "DNS Name of your application"
 
 ```bash
 aws s3api create-bucket --bucket petclinic-helm-charts-<put-your-name> --region us-east-1
-aws s3api put-object --bucket petclinic-helm-charts-<put-your-name> --key stable/myapp/
+aws s3api put-object --bucket petclinic-helm-charts-omerdogan --key stable/myapp/
 ```
 
 * Install the helm-s3 plugin for Amazon S3.
@@ -2480,7 +2480,7 @@ helm plugin install https://github.com/hypnoglow/helm-s3.git
 * ``Initialize`` the Amazon S3 Helm repository.
 
 ```bash
-AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-<put-your-name>/stable/myapp 
+AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-omerdogan/stable/myapp 
 ```
 
 * The command creates an ``index.yaml`` file in the target to track all the chart information that is stored at that location.
@@ -2488,14 +2488,14 @@ AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-<put-your-name>/sta
 * Verify that the ``index.yaml`` file was created.
 
 ```bash
-aws s3 ls s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
+aws s3 ls s3://petclinic-helm-charts-omerdogan/stable/myapp/
 ```
 
 * Add the Amazon S3 repository to Helm on the client machine. 
 
 ```bash
 helm repo ls
-AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
+AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-omerdogan/stable/myapp/
 ```
 
 * Update `version` and `appVersion` field of `k8s/petclinic_chart/Chart.yaml` file as below for testing.
@@ -2515,7 +2515,7 @@ helm package petclinic_chart/
 * Store the local package in the Amazon S3 Helm repository.
 
 ```bash
-HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.1.tgz stable-petclinicapp
+HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.1.0.tgz stable-petclinicapp
 ```
 
 * Search for the Helm chart.
@@ -2540,7 +2540,7 @@ helm package petclinic_chart/
 * Push the new version to the Helm repository in Amazon S3.
 
 ```bash
-HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.2.tgz stable-petclinicapp
+HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.2.0.tgz stable-petclinicapp
 ```
 
 * Verify the updated Helm chart.
@@ -2671,9 +2671,9 @@ git push --set-upstream origin feature/msp-18
 ```yml
 - job name: test-msp-18-scripts
 - job type: Freestyle project
-- GitHub project: https://github.com/betul-kaplan/petclinic-microservices
+- GitHub project: https://github.com/[your-github-account]/petclinic-microservices
 - Source Code Management: Git
-      Repository URL: https://github.com/betul-kaplan/petclinic-microservices.git
+      Repository URL: https://github.com/[your-github-account]/petclinic-microservices.git
 - Branches to build:
       Branch Specifier (blank for 'any'): */feature/msp-18
 - Build:
@@ -2682,7 +2682,7 @@ git push --set-upstream origin feature/msp-18
 ```
 ```bash
 PATH="$PATH:/usr/local/bin"
-APP_REPO_NAME="clarusway1-repo/petclinic-app-dev" # Write your own repo name
+APP_REPO_NAME="omerdogan16/petclinic-microservices" # Write your own repo name
 AWS_REGION="us-east-1" #Update this line if you work on another region
 ECR_REGISTRY="046402772087.dkr.ecr.us-east-1.amazonaws.com" # Replace this line with your ECR name
 aws ecr create-repository \
@@ -3027,7 +3027,7 @@ git commit -m 'added qa automation pipeline for dev'
 git push
 git checkout dev
 git merge feature/msp-18
-git push origin dev 
+git push origin dev
 ```
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -3129,15 +3129,13 @@ kind: ClusterConfig
 
 metadata:
   name: petclinic-cluster
-  region: us-east-1
-availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]
-managedNodeGroups:
+  region: eu-north-1
+nodeGroups:
   - name: ng-1
-    instanceType: t3a.medium
+    instanceType: t3.medium
     desiredCapacity: 2
-    minSize: 2
-    maxSize: 3
     volumeSize: 8
+availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]
 ```
 
 - Create an EKS cluster via `eksctl`. It will take a while.
@@ -3160,7 +3158,6 @@ git push origin dev
 - After the cluster is up, run the following command to install `ingress controller`.
 
 ```bash
-export PATH=$PATH:$HOME/bin
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
 ```
 
