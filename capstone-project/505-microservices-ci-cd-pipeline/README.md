@@ -3773,7 +3773,7 @@ git push origin release
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 ## MSP 24 - Install Rancher App on RKE Kubernetes Cluster
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
+# DİKKAT :BİZDE HELM ZATEN KURULU:direk # "helm version" ile kontrol edebiliriz.
 * Install Helm [version 3+](https://github.com/helm/helm/releases) on Jenkins Server. [Introduction to Helm](https://helm.sh/docs/intro/). [Helm Installation](https://helm.sh/docs/intro/install/).
 
 ```bash
@@ -3799,7 +3799,7 @@ kubectl create namespace cattle-system
 ```bash
 helm install rancher rancher-latest/rancher \
   --namespace cattle-system \
-  --set hostname=rancher.clarusway.us \
+  --set hostname=rancher.betuldurankaplan.com \
   --set tls=external \
   --set replicas=1
 ```
