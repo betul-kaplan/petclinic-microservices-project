@@ -4597,7 +4597,7 @@ spec:
 * Check if `ClusterIssuer` resource is created.
 
 ```bash
-kubectl apply -f k8s/tls-cluster-issuer-prod.yml
+kubectl apply -f tls-cluster-issuer-prod.yml
 kubectl get clusterissuers letsencrypt-prod -n cert-manager -o wide
 ```
 
